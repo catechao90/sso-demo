@@ -1,0 +1,9 @@
+node_modules
+dist
+css
+.sass-cache
+.idea
+reports
+*.log
+catch-report.***
+.vscode

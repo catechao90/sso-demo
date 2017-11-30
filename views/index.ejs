@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <title>登陆</title>
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.min.css">
+  </head>
+  <body>
+    <div class="login-fixed">
+      <% if(err) { %>
+      <div class="login-fixed-from input-err">
+        <div class="input-err">
+          <input id="name-input" type="text" placeholder="请输入用户名" onblur="this.value=this.value.replace(/\s+/g,'')">
+          <small class="name-err"></small>
+        </div>
+        <div class="input-err">
+          <input id="password-input" type="password" placeholder="请输入密码" maxlength="16" onblur="this.value=this.value.replace(/\s+/g,'')">
+          <small class="password-err"></small>
+        </div>	
+        <button class="btn btn-info btn-lg" onclick="loginBtn()">登录</button>
+      </div>
+      <% } %>
+      <%= message%>
+    </div>
+    <div class="popup-window animated" id="errorPromte" onclick="hidePopup()">
+      <div class="popup-window-no">
+          <p class="service-err-msg"></p>
+      </div>
+    </div>
+    
+    
+    <script src="/javascripts/jquery-3.2.1.min.js"></script>
+    <script src="/javascripts/popper.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script>
+      function getQueryStringArgs(){
+        var qs = (location.search.length > 0 ? location.search.substring(1) : ""),
+        args = {},
+        items = qs.length ? qs.split("&") : [],
+        item = null,
+        name = null,
+        value = null,
+        i = 0,
+        len = items.length;
+        for (i=0; i < len; i++){
+          item = items[i].split("=");
+          name = decodeURIComponent(item[0]);
+          value = decodeURIComponent(item[1]);
+          if (name.length) {
+            args[name] = value;
+          }
+        }
+        return args;
+      }
+      function hidePopup(){
+        $("#errorPromte").addClass("fadeOutDown").hide();
+      } 
+      var query = getQueryStringArgs();
+      function loginBtn(){
+        var name = $("#name-input").val().trim();
+        var password = $("#password-input").val().trim();
+        if(!name){
+          $(".name-err").text('请输入用户名');
+          $(".name-err").show();
+        }
+        if(!password){
+          $(".password-err").text('请输入密码');
+          $(".password-err").show();
+        }
+        $.ajax({
+          type: 'POST',
+          url: '/',
+          data: {
+            username: name,
+            password: password
+          },
+          dataType: "JSON",
+          success: function(data){
+            if(data.msg!==''){
+              errAlert(data.msg)
+            }
+            else{
+              location.href = query.url || "www.google.com"
+            }
+          }
+        })
+      }
+      $(document).on('input propertychange','.input-err input', function () {
+        if($(this).val().trim()!=""){
+          $(this).parent().children('p').hide();
+          $(this).parent().children('small').hide();
+        }       
+      });
+      function errAlert(errMsg){
+        $(".service-err-msg").html(errMsg);
+        $("#errorPromte").removeClass("fadeInDown");
+        $("#errorPromte").removeClass("fadeOutDown");
+        $("#errorPromte").show().addClass("fadeInDown");
+        setTimeout(function(){
+          $("#errorPromte").removeClass("fadeInDown");
+          $("#errorPromte").addClass("fadeOutDown").hide();
+        }, 4000);
+      }
+    </script>
+  </body>
+</html>
